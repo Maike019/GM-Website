@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Video: Tages-Video</title>
+    <style>
+        :root {
+            --bg-1: #f6fbff;
+            --bg-2: #eef6fb;
+            --card: rgba(255, 255, 255, 0.06);
+            --glass: rgba(255, 255, 255, 0.06);
+            --accent: #06b6d4;
+            /* cyan */
+            --muted: #6b7c88;
+            --text: #013243;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-content {
+            flex: 2;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.86));
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+            overflow: hidden;
+        }
+
+        .frame {
+            position: relative;
+            padding-top: 56.25%;
+            border-radius: 10px;
+            overflow: hidden
+        }
+
+        .frame iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px
+        }
+
+        .meta .title {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .controls,
+        .playlist {
+            display: none
+        }
+
+        .playlist {
+            flex: 1;
+            display: block;
+            max-height: 600px;
+            overflow: auto;
+            border-radius: 8px;
+            background: rgba(2, 6, 23, 0.02);
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+
+        .playlist-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .playlist-item.active {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.12), rgba(6, 182, 212, 0.06));
+        }
+
+        .playlist-item .index {
+            min-width: 36px;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .playlist-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .search {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 720px) {
+            .wrap {
+                flex-direction: column;
+            }
+
+            .playlist {
+                max-height: 300px;
+            }
+        }
+
+        /* top-right brand logo (optional) */
+
+        .brand-logo {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 60;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        .brand-logo img {
+            height: 72px;
+            /* larger */
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+        }
+
+        @media(max-width:480px) {
+            .brand-logo {
+                top: 12px;
+                right: 12px
+            }
+
+            .brand-logo img {
+                height: 54px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="brand-logo"><img src="logo.png" alt="Logo" onerror="this.parentElement.style.display='none'"></div>
+    <div class="wrap">
+        <div class="main-content">
+            <header>
+                <div class="brand">
+                    <div>
+                        <h1>Bewegungs- &amp; Entspannungs-Videos</h1>
+                        <p class="lead">Es wird nur das heutige Video angezeigt. Wechsel erfolgt automatisch (UTC) am
+                            nächsten Tag.</p>
+                    </div>
+                </div>
+                <div class="muted">Alle Videos sichtbar</div>
+            </header>
+
+            <main class="card">
+                <div id="playerFrame" class="frame" aria-live="polite" aria-label="Videoplayer"><!-- iframe injected -->
+                </div>
+                <div class="meta">
+                    <div class="title" id="videoTitle">Lade...</div>
+                    <div class="muted" id="videoIndex">0 / 0</div>
+                </div>
+            </main>
+        </div>
+
+        <div class="playlist" id="playlistRoot" aria-label="Playlist">
+            <input id="searchInput" class="search" type="search" placeholder="Suchen (Titel)...">
+            <div class="playlist-controls">
+                <label style="font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center;">
+                    <input id="embedAll" type="checkbox"> Alle einbetten
+                </label>
+            </div>
+            <div id="playlistItems"></div>
+        </div>
+    </div>
+
+    <script>
+        const videos = [
+            { id: 1, title: 'V1_Begrüßung', iframe: '<iframe src="https://player.vimeo.com/video/856922432?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V1_Begrüßung"></iframe>' },
+            { id: 2, title: 'V2_Stress', iframe: '<iframe src="https://player.vimeo.com/video/856923791?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V2_Stress"></iframe>' },
+            { id: 3, title: 'V3_KonziBooster', iframe: '<iframe src="https://player.vimeo.com/video/856925534?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V3_KonziBooster"></iframe>' },
+            { id: 4, title: 'V4_Augen_u_Mittag', iframe: '<iframe src="https://player.vimeo.com/video/856926568?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V4_Augen_u_Mittag"></iframe>' },
+            { id: 5, title: 'V5_Flexibooster', iframe: '<iframe src="https://player.vimeo.com/video/856928254?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V5_Flexibooster"></iframe>' },
+            { id: 6, title: 'V6_Augenübungen_Nachmittag', iframe: '<iframe src="https://player.vimeo.com/video/856929490?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V6_Augenübungen_Nachmittag"></iframe>' },
+            { id: 7, title: 'V7_Atmung', iframe: '<iframe src="https://player.vimeo.com/video/856930748?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V7_Atmung"></iframe>' },
+            { id: 8, title: 'V8_Flexibilität', iframe: '<iframe src="https://player.vimeo.com/video/856932081?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V8_Flexibilität"></iframe>' },
+            { id: 9, title: 'V9_Couch', iframe: '<iframe src="https://player.vimeo.com/video/856933429?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V9_Couch"></iframe>' },
+            { id: 10, title: 'V10_Wadenpumpe', iframe: '<iframe src="https://player.vimeo.com/video/856934723?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V10_Wadenpumpe"></iframe>' },
+            { id: 11, title: 'V11_Recken_Strecken', iframe: '<iframe src="https://player.vimeo.com/video/856936441?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V11_Recken_Strecken"></iframe>' },
+            { id: 12, title: 'V12_Abschluss', iframe: '<iframe src="https://player.vimeo.com/video/856938210?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V12_Abschluss"></iframe>' }
+        ];
+
+        const playerFrame = document.getElementById('playerFrame');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoIndex = document.getElementById('videoIndex');
+
+
+        // Immer mit V1 starten (fester Startindex)
+        let current = 0;
+
+        function normalizeVolume() {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach((iframe) => {
+                const player = new Vimeo.Player(iframe);
+                player.setVolume(0.5); // Set a consistent volume level (e.g., 50%)
+            });
+        }
+
+        // Call normalizeVolume whenever a new video is loaded
+        function showCurrent() {
+            const v = videos[current];
+            playerFrame.innerHTML = v.iframe;
+            videoTitle.textContent = v.title;
+            videoIndex.textContent = `${current + 1} / ${videos.length}`;
+            setTimeout(normalizeVolume, 1000); // Delay to ensure iframe is loaded
+        }
+
+        showCurrent();
+
+
+        // Build playlist UI
+        const playlistItems = document.getElementById('playlistItems');
+        const searchInput = document.getElementById('searchInput');
+        const embedAll = document.getElementById('embedAll');
+
+        function renderPlaylist(filter = '') {
+            playlistItems.innerHTML = '';
+            const q = filter.trim().toLowerCase();
+            videos.forEach((v, i) => {
+                if (q && !v.title.toLowerCase().includes(q)) return;
+                const item = document.createElement('div');
+                item.className = 'playlist-item';
+                if (i === current) item.classList.add('active');
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.innerHTML = `<div class="index">${i + 1}</div><div class="info"><div style="font-weight:600">${v.title}</div><div class="muted" style="font-size:12px">Video ID: ${v.id}</div></div>`;
+                item.addEventListener('click', () => {
+                    current = i;
+                    showCurrent();
+                    renderPlaylist(searchInput.value);
+                });
+                item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } });
+                playlistItems.appendChild(item);
+            });
+        }
+
+        // search handler
+        searchInput.addEventListener('input', (e) => {
+            renderPlaylist(e.target.value);
+        });
+
+        // embed all toggle: when checked, show all iframes below player
+        embedAll.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                // append all iframes
+                const allWrap = document.createElement('div');
+                allWrap.id = 'allEmbeds';
+                allWrap.style.marginTop = '12px';
+                videos.forEach((v) => {
+                    const box = document.createElement('div');
+                    box.style.marginBottom = '10px';
+                    box.innerHTML = `<div style="font-weight:600;margin-bottom:6px">${v.title}</div>${v.iframe}`;
+                    allWrap.appendChild(box);
+                });
+                playlistRoot.appendChild(allWrap);
+                setTimeout(normalizeVolume, 1000); // Normalize volume after embedding all
+            } else {
+                const existing = document.getElementById('allEmbeds');
+                if (existing) existing.remove();
+            }
+        });
+
+        // initial render
+        renderPlaylist();
+
+    </script>
+</body>
+
+</html>
