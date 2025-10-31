@@ -271,64 +271,39 @@
             setTimeout(normalizeVolume, 1000); // Delay to ensure iframe is loaded
         }
 
-        showCurrent();
-
-
-        // Build playlist UI
-        const playlistItems = document.getElementById('playlistItems');
-        const searchInput = document.getElementById('searchInput');
-        const embedAll = document.getElementById('embedAll');
-
-        function renderPlaylist(filter = '') {
-            playlistItems.innerHTML = '';
-            const q = filter.trim().toLowerCase();
-            videos.forEach((v, i) => {
-                if (q && !v.title.toLowerCase().includes(q)) return;
-                const item = document.createElement('div');
-                item.className = 'playlist-item';
-                if (i === current) item.classList.add('active');
-                item.setAttribute('role', 'button');
-                item.setAttribute('tabindex', '0');
-                item.innerHTML = `<div class="index">${i + 1}</div><div class="info"><div style="font-weight:600">${v.title}</div><div class="muted" style="font-size:12px">Video ID: ${v.id}</div></div>`;
-                item.addEventListener('click', () => {
-                    current = i;
-                    showCurrent();
-                    renderPlaylist(searchInput.value);
-                });
-                item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } });
-                playlistItems.appendChild(item);
-            });
+        // Funktion zur Berechnung des aktuellen Videos basierend auf dem Datum
+        function calculateCurrentVideo() {
+            const startDate = new Date('2025-10-30'); // Startdatum für das erste Video
+            const today = new Date();
+            const diffInDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const weekIndex = Math.floor(diffInDays / 7); // Wochenindex berechnen
+            current = Math.min(weekIndex, videos.length - 1); // Sicherstellen, dass der Index nicht über die Anzahl der Videos hinausgeht
         }
 
-        // search handler
-        searchInput.addEventListener('input', (e) => {
-            renderPlaylist(e.target.value);
-        });
+        // Berechne das aktuelle Video und zeige es an
+        calculateCurrentVideo();
+        showCurrent();
 
-        // embed all toggle: when checked, show all iframes below player
-        embedAll.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                // append all iframes
-                const allWrap = document.createElement('div');
-                allWrap.id = 'allEmbeds';
-                allWrap.style.marginTop = '12px';
-                videos.forEach((v) => {
-                    const box = document.createElement('div');
-                    box.style.marginBottom = '10px';
-                    box.innerHTML = `<div style="font-weight:600;margin-bottom:6px">${v.title}</div>${v.iframe}`;
-                    allWrap.appendChild(box);
-                });
-                playlistRoot.appendChild(allWrap);
-                setTimeout(normalizeVolume, 1000); // Normalize volume after embedding all
-            } else {
-                const existing = document.getElementById('allEmbeds');
-                if (existing) existing.remove();
+        // Playlist deaktivieren, sodass nur das aktuelle Video angezeigt wird
+        document.getElementById('playlistRoot').style.display = 'none';
+
+        // Entferne Empfehlungen am Ende des Videos
+        function removeRecommendations() {
+            const iframe = playerFrame.querySelector('iframe');
+            if (iframe) {
+                const src = iframe.src;
+                iframe.src = src.includes('?') ? `${src}&rel=0` : `${src}?rel=0`; // rel=0 entfernt Empfehlungen
             }
-        });
+        }
 
-        // initial render
-        renderPlaylist();
+        // Entferne Empfehlungen nach dem Laden des Videos
+        setTimeout(removeRecommendations, 1000);
 
+        // Deaktiviere die Möglichkeit, andere Videos anzuklicken
+        const playlistItems = document.getElementById('playlistItems');
+        if (playlistItems) {
+            playlistItems.innerHTML = ''; // Playlist vollständig leeren
+        }
     </script>
 </body>
 
