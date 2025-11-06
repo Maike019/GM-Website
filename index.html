@@ -202,11 +202,11 @@
                 <div class="brand">
                     <div>
                         <h1>Bewegungs- &amp; Entspannungs-Videos</h1>
-                        <p class="lead">Es wird nur das heutige Video angezeigt. Wechsel erfolgt automatisch (UTC) am
-                            nächsten Tag.</p>
+                        <p class="lead">Es wird nur das heutige Video angezeigt. Wechsel erfolgt automatisch in der
+                            nächsten Woche.</p>
                     </div>
                 </div>
-                <div class="muted">Alle Videos sichtbar</div>
+
             </header>
 
             <main class="card">
@@ -271,18 +271,63 @@
             setTimeout(normalizeVolume, 1000); // Delay to ensure iframe is loaded
         }
 
-        // Funktion zur Berechnung des aktuellen Videos basierend auf dem Datum
-        function calculateCurrentVideo() {
-            const startDate = new Date('2025-10-30'); // Startdatum für das erste Video
+        // Funktion zur Berechnung der freigeschalteten Videos basierend auf dem Datum
+        function calculateUnlockedVideos() {
+            const startDate = new Date('2025-10-24'); // Startdatum für die ersten Videos
             const today = new Date();
             const diffInDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-            const weekIndex = Math.floor(diffInDays / 7); // Wochenindex berechnen
-            current = Math.min(weekIndex, videos.length - 1); // Sicherstellen, dass der Index nicht über die Anzahl der Videos hinausgeht
+            const weeksPassed = Math.floor(diffInDays / 7); // Wochen seit dem Startdatum
+            const unlockedCount = Math.min(weeksPassed * 2 + 2, videos.length); // Jede Woche zwei neue Videos freischalten, beginnend mit Begrüßung und dem nachfolgenden Video
+            return unlockedCount;
         }
 
-        // Berechne das aktuelle Video und zeige es an
-        calculateCurrentVideo();
-        showCurrent();
+        // Zeige die freigeschalteten Videos
+        function showUnlockedVideos() {
+            const unlockedCount = calculateUnlockedVideos();
+            const unlockedVideos = videos.slice(0, unlockedCount); // Nur freigeschaltete Videos anzeigen
+
+            // Playlist aktualisieren
+            const playlistItems = document.getElementById('playlistItems');
+            playlistItems.innerHTML = '';
+            unlockedVideos.forEach((v, i) => {
+                const item = document.createElement('div');
+                item.className = 'playlist-item';
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.style.border = '1px solid #ccc';
+                item.style.padding = '10px';
+                item.style.marginBottom = '5px';
+                item.style.borderRadius = '5px';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `<div class="info"><div style="font-weight:600">${v.title}</div><div class="muted" style="font-size:12px">Video ID: ${v.id}</div></div>`;
+                item.addEventListener('click', () => {
+                    playerFrame.innerHTML = v.iframe;
+                    videoTitle.textContent = v.title;
+                });
+                playlistItems.appendChild(item);
+            });
+
+            // Zeige das erste freigeschaltete Video
+            if (unlockedVideos.length > 0) {
+                const firstVideo = unlockedVideos[0];
+                playerFrame.innerHTML = firstVideo.iframe;
+                videoTitle.textContent = firstVideo.title;
+            }
+
+            // Zeige die Playlist unter dem Video
+            const playlistRoot = document.getElementById('playlistRoot');
+            playlistRoot.style.display = 'block';
+            playlistRoot.style.flex = '1';
+            playlistRoot.style.marginTop = '20px';
+            playlistRoot.style.position = 'relative';
+
+            // Blende die Anzahl der Videos aus
+            const videoIndex = document.getElementById('videoIndex');
+            videoIndex.style.display = 'none';
+        }
+
+        // Initialisiere die Anzeige der freigeschalteten Videos
+        showUnlockedVideos();
 
         // Playlist deaktivieren, sodass nur das aktuelle Video angezeigt wird
         document.getElementById('playlistRoot').style.display = 'none';
