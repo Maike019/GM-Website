@@ -91,6 +91,27 @@
             font-size: 13px
         }
 
+        .unlock-icon {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+        }
+
+        .unlock-icon:hover {
+            transform: scale(1.1);
+            background: #0891b2;
+        }
+
         .controls,
         .playlist {
             display: none
@@ -98,7 +119,7 @@
 
         .playlist {
             flex: 1;
-            display: block;
+            display: none;
             max-height: 600px;
             overflow: auto;
             border-radius: 8px;
@@ -216,6 +237,9 @@
                     <div class="title" id="videoTitle">Lade...</div>
                     <div class="muted" id="videoIndex">0 / 0</div>
                 </div>
+                <div id="unlockIconContainer" style="margin-top: 12px; display: none;">
+                    <span class="unlock-icon" id="unlockIcon" title="Alle Videos freischalten">🔓</span>
+                </div>
             </main>
         </div>
 
@@ -278,12 +302,8 @@
                 return videos.length;
             }
 
-            const startDate = new Date('2025-12-01'); // Startdatum für die ersten Videos
-            const today = new Date();
-            const diffInDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-            const weeksPassed = Math.floor(diffInDays / 7); // Wochen seit dem Startdatum
-            const unlockedCount = Math.min(weeksPassed + 1, videos.length); // Jede Woche ein neues Video freischalten, beginnend mit dem ersten
-            return unlockedCount;
+            // Ohne Passwort: nur das erste Video (Begrüßung) freischalten
+            return 1;
         }
 
         // Zeige die freigeschalteten Videos
@@ -319,9 +339,11 @@
                 videoTitle.textContent = firstVideo.title;
             }
 
-            // Zeige die Playlist neben dem Video
+            // Zeige die Playlist nur wenn Passwort eingegeben wurde
             const playlistRoot = document.getElementById('playlistRoot');
-            playlistRoot.style.display = 'block';
+            if (sessionStorage.getItem('videoAccess') === 'granted') {
+                playlistRoot.style.display = 'block';
+            }
 
             // Blende die Anzahl der Videos aus
             const videoIndex = document.getElementById('videoIndex');
@@ -352,9 +374,22 @@
             }
         }
 
+        // Passwort-Symbol unter dem Video anzeigen
+        function showUnlockIcon() {
+            if (sessionStorage.getItem('videoAccess') !== 'granted') {
+                const iconContainer = document.getElementById('unlockIconContainer');
+                const icon = document.getElementById('unlockIcon');
+                if (iconContainer && icon) {
+                    iconContainer.style.display = 'block';
+                    icon.addEventListener('click', checkPassword);
+                }
+            }
+        }
+
         // Initialisiere die Anzeige der freigeschalteten Videos
         showUnlockedVideos();
         addPasswordButton();
+        showUnlockIcon();
     </script>
 </body>
 
