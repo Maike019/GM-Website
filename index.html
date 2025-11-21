@@ -202,7 +202,7 @@
                 <div class="brand">
                     <div>
                         <h1>Bewegungs- &amp; Entspannungs-Videos</h1>
-                        <p class="lead">Es wird nur das heutige Video angezeigt. Wechsel erfolgt automatisch in der
+                        <p class="lead">Es werden nur die aktuellen Videos angezeigt. Wechsel erfolgt automatisch in der
                             nächsten Woche.</p>
                     </div>
                 </div>
@@ -273,11 +273,16 @@
 
         // Funktion zur Berechnung der freigeschalteten Videos basierend auf dem Datum
         function calculateUnlockedVideos() {
-            const startDate = new Date('2025-10-24'); // Startdatum für die ersten Videos
+            // Wenn Passwort eingegeben wurde, alle Videos freischalten
+            if (sessionStorage.getItem('videoAccess') === 'granted') {
+                return videos.length;
+            }
+
+            const startDate = new Date('2025-12-01'); // Startdatum für die ersten Videos
             const today = new Date();
             const diffInDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
             const weeksPassed = Math.floor(diffInDays / 7); // Wochen seit dem Startdatum
-            const unlockedCount = Math.min(weeksPassed * 2 + 2, videos.length); // Jede Woche zwei neue Videos freischalten, beginnend mit Begrüßung und dem nachfolgenden Video
+            const unlockedCount = Math.min(weeksPassed + 1, videos.length); // Jede Woche ein neues Video freischalten, beginnend mit dem ersten
             return unlockedCount;
         }
 
@@ -314,41 +319,42 @@
                 videoTitle.textContent = firstVideo.title;
             }
 
-            // Zeige die Playlist unter dem Video
+            // Zeige die Playlist neben dem Video
             const playlistRoot = document.getElementById('playlistRoot');
             playlistRoot.style.display = 'block';
-            playlistRoot.style.flex = '1';
-            playlistRoot.style.marginTop = '20px';
-            playlistRoot.style.position = 'relative';
 
             // Blende die Anzahl der Videos aus
             const videoIndex = document.getElementById('videoIndex');
             videoIndex.style.display = 'none';
         }
 
-        // Initialisiere die Anzeige der freigeschalteten Videos
-        showUnlockedVideos();
-
-        // Playlist deaktivieren, sodass nur das aktuelle Video angezeigt wird
-        document.getElementById('playlistRoot').style.display = 'none';
-
-        // Entferne Empfehlungen am Ende des Videos
-        function removeRecommendations() {
-            const iframe = playerFrame.querySelector('iframe');
-            if (iframe) {
-                const src = iframe.src;
-                iframe.src = src.includes('?') ? `${src}&rel=0` : `${src}?rel=0`; // rel=0 entfernt Empfehlungen
+        // Passwort-Dialog Funktion
+        function checkPassword() {
+            const password = prompt('Geben Sie das Passwort ein, um alle Videos freizuschalten:');
+            if (password === 'Maike') { // Passwort hier ändern
+                sessionStorage.setItem('videoAccess', 'granted');
+                showUnlockedVideos(); // Playlist neu laden mit allen Videos
+                alert('Alle Videos wurden freigeschaltet!');
+            } else if (password !== null) {
+                alert('Falsches Passwort!');
             }
         }
 
-        // Entferne Empfehlungen nach dem Laden des Videos
-        setTimeout(removeRecommendations, 1000);
-
-        // Deaktiviere die Möglichkeit, andere Videos anzuklicken
-        const playlistItems = document.getElementById('playlistItems');
-        if (playlistItems) {
-            playlistItems.innerHTML = ''; // Playlist vollständig leeren
+        // Passwort-Button zur Seite hinzufügen
+        function addPasswordButton() {
+            const controls = document.querySelector('.playlist-controls');
+            if (controls) {
+                const btn = document.createElement('button');
+                btn.textContent = '🔓 Alle Videos freischalten';
+                btn.style.cssText = 'padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:white;cursor:pointer;font-size:13px;font-weight:600;';
+                btn.addEventListener('click', checkPassword);
+                controls.appendChild(btn);
+            }
         }
+
+        // Initialisiere die Anzeige der freigeschalteten Videos
+        showUnlockedVideos();
+        addPasswordButton();
     </script>
 </body>
 
