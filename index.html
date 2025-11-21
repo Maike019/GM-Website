@@ -256,18 +256,18 @@
 
     <script>
         const videos = [
-            { id: 1, title: 'V1_Begrüßung', iframe: '<iframe src="https://player.vimeo.com/video/856922432?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V1_Begrüßung"></iframe>' },
-            { id: 2, title: 'V2_Stress', iframe: '<iframe src="https://player.vimeo.com/video/856923791?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V2_Stress"></iframe>' },
-            { id: 3, title: 'V3_KonziBooster', iframe: '<iframe src="https://player.vimeo.com/video/856925534?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V3_KonziBooster"></iframe>' },
-            { id: 4, title: 'V4_Augen_u_Mittag', iframe: '<iframe src="https://player.vimeo.com/video/856926568?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V4_Augen_u_Mittag"></iframe>' },
-            { id: 5, title: 'V5_Flexibooster', iframe: '<iframe src="https://player.vimeo.com/video/856928254?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V5_Flexibooster"></iframe>' },
-            { id: 6, title: 'V6_Augenübungen_Nachmittag', iframe: '<iframe src="https://player.vimeo.com/video/856929490?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V6_Augenübungen_Nachmittag"></iframe>' },
-            { id: 7, title: 'V7_Atmung', iframe: '<iframe src="https://player.vimeo.com/video/856930748?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V7_Atmung"></iframe>' },
-            { id: 8, title: 'V8_Flexibilität', iframe: '<iframe src="https://player.vimeo.com/video/856932081?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V8_Flexibilität"></iframe>' },
-            { id: 9, title: 'V9_Couch', iframe: '<iframe src="https://player.vimeo.com/video/856933429?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V9_Couch"></iframe>' },
-            { id: 10, title: 'V10_Wadenpumpe', iframe: '<iframe src="https://player.vimeo.com/video/856934723?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V10_Wadenpumpe"></iframe>' },
-            { id: 11, title: 'V11_Recken_Strecken', iframe: '<iframe src="https://player.vimeo.com/video/856936441?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V11_Recken_Strecken"></iframe>' },
-            { id: 12, title: 'V12_Abschluss', iframe: '<iframe src="https://player.vimeo.com/video/856938210?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V12_Abschluss"></iframe>' }
+            { id: 1, title: 'V1_Begrüßung', iframe: '<iframe src="https://player.vimeo.com/video/856922432?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V1_Begrüßung"></iframe>', endTime: 37 },
+            { id: 2, title: 'V2_Stress', iframe: '<iframe src="https://player.vimeo.com/video/856923791?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V2_Stress"></iframe>', endTime: 295 },
+            { id: 3, title: 'V3_KonziBooster', iframe: '<iframe src="https://player.vimeo.com/video/856925534?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V3_KonziBooster"></iframe>', endTime: 124 },
+            { id: 4, title: 'V4_Augen_u_Mittag', iframe: '<iframe src="https://player.vimeo.com/video/856926568?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V4_Augen_u_Mittag"></iframe>', endTime: 112 },
+            { id: 5, title: 'V5_Flexibooster', iframe: '<iframe src="https://player.vimeo.com/video/856928254?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V5_Flexibooster"></iframe>', endTime: 101 },
+            { id: 6, title: 'V6_Augenübungen_Nachmittag', iframe: '<iframe src="https://player.vimeo.com/video/856929490?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V6_Augenübungen_Nachmittag"></iframe>', endTime: 189 },
+            { id: 7, title: 'V7_Atmung', iframe: '<iframe src="https://player.vimeo.com/video/856930748?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V7_Atmung"></iframe>', endTime: 270 },
+            { id: 8, title: 'V8_Flexibilität', iframe: '<iframe src="https://player.vimeo.com/video/856932081?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V8_Flexibilität"></iframe>', endTime: 73 },
+            { id: 9, title: 'V9_Couch', iframe: '<iframe src="https://player.vimeo.com/video/856933429?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V9_Couch"></iframe>', endTime: 104 },
+            { id: 10, title: 'V10_Wadenpumpe', iframe: '<iframe src="https://player.vimeo.com/video/856934723?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V10_Wadenpumpe"></iframe>', endTime: 61 },
+            { id: 11, title: 'V11_Recken_Strecken', iframe: '<iframe src="https://player.vimeo.com/video/856936441?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V11_Recken_Strecken"></iframe>', endTime: 61 },
+            { id: 12, title: 'V12_Abschluss', iframe: '<iframe src="https://player.vimeo.com/video/856938210?badge=0&autopause=0&player_id=0&app_id=58479" allow="autoplay; fullscreen; picture-in-picture" title="V12_Abschluss"></iframe>', endTime: 102 }
         ];
 
         const playerFrame = document.getElementById('playerFrame');
@@ -275,24 +275,33 @@
         const videoIndex = document.getElementById('videoIndex');
 
 
-        // Immer mit V1 starten (fester Startindex)
+        // Aktueller Video-Player
+        let currentPlayer = null;
         let current = 0;
 
-        function normalizeVolume() {
-            const iframes = document.querySelectorAll('iframe');
-            iframes.forEach((iframe) => {
-                const player = new Vimeo.Player(iframe);
-                player.setVolume(0.5); // Set a consistent volume level (e.g., 50%)
-            });
-        }
+        // Funktion zum Einrichten des Video-Players mit Endzeit
+        function setupVideoPlayer(videoData) {
+            const iframe = playerFrame.querySelector('iframe');
+            if (!iframe) return;
 
-        // Call normalizeVolume whenever a new video is loaded
-        function showCurrent() {
-            const v = videos[current];
-            playerFrame.innerHTML = v.iframe;
-            videoTitle.textContent = v.title;
-            videoIndex.textContent = `${current + 1} / ${videos.length}`;
-            setTimeout(normalizeVolume, 1000); // Delay to ensure iframe is loaded
+            try {
+                currentPlayer = new Vimeo.Player(iframe);
+
+                // Setze Lautstärke
+                currentPlayer.setVolume(0.5);
+
+                // Überwache die Wiedergabezeit und stoppe bei Endzeit
+                if (videoData.endTime) {
+                    currentPlayer.on('timeupdate', function (data) {
+                        if (data.seconds >= videoData.endTime) {
+                            currentPlayer.pause();
+                            currentPlayer.unload(); // Entferne das Video komplett
+                        }
+                    });
+                }
+            } catch (error) {
+                console.log('Vimeo Player konnte nicht initialisiert werden:', error);
+            }
         }
 
         // Funktion zur Berechnung der freigeschalteten Videos basierend auf dem Datum
@@ -328,6 +337,9 @@
                 item.addEventListener('click', () => {
                     playerFrame.innerHTML = v.iframe;
                     videoTitle.textContent = v.title;
+
+                    // Warte bis iframe geladen ist, dann richte Player ein
+                    setTimeout(() => setupVideoPlayer(v), 1000);
                 });
                 playlistItems.appendChild(item);
             });
@@ -337,6 +349,9 @@
                 const firstVideo = unlockedVideos[0];
                 playerFrame.innerHTML = firstVideo.iframe;
                 videoTitle.textContent = firstVideo.title;
+
+                // Warte bis iframe geladen ist, dann richte Player ein
+                setTimeout(() => setupVideoPlayer(firstVideo), 1000);
             }
 
             // Zeige die Playlist nur wenn Passwort eingegeben wurde
@@ -391,6 +406,7 @@
         addPasswordButton();
         showUnlockIcon();
     </script>
+    <script src="https://player.vimeo.com/api/player.js"></script>
 </body>
 
 </html>
