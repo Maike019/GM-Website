@@ -278,9 +278,11 @@
         // Aktueller Video-Player
         let currentPlayer = null;
         let current = 0;
+        let playlistQueue = [];
+        let currentQueueIndex = 0;
 
         // Funktion zum Einrichten des Video-Players mit Endzeit
-        function setupVideoPlayer(videoData) {
+        function setupVideoPlayer(videoData, autoplayNext = false) {
             const iframe = playerFrame.querySelector('iframe');
             if (!iframe) return;
 
@@ -290,12 +292,41 @@
                 // Setze Lautstärke
                 currentPlayer.setVolume(0.5);
 
-                // Überwache die Wiedergabezeit und stoppe bei Endzeit
+                // Versuche automatisch Passwort einzugeben falls benötigt
+                currentPlayer.on('loaded', function () {
+                    // Prüfe ob ein Passwort-Formular existiert und fülle es automatisch aus
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const passwordInput = iframeDoc.querySelector('input[type="password"]');
+                        if (passwordInput) {
+                            passwordInput.value = 'evu2023';
+                            const form = passwordInput.closest('form');
+                            if (form) {
+                                form.submit();
+                            }
+                        }
+                    } catch (e) {
+                        // Cross-origin Fehler - kann von außen nicht zugreifen
+                        console.log('Konnte nicht auf iframe zugreifen (Cross-Origin)');
+                    }
+                });
+
+                // Überwache die Wiedergabezeit und stoppe bei Endzeit oder spiele nächstes Video
                 if (videoData.endTime) {
                     currentPlayer.on('timeupdate', function (data) {
                         if (data.seconds >= videoData.endTime) {
                             currentPlayer.pause();
-                            currentPlayer.unload(); // Entferne das Video komplett
+
+                            // Wenn autoplayNext aktiviert ist und es noch Videos in der Queue gibt
+                            if (autoplayNext && currentQueueIndex < playlistQueue.length - 1) {
+                                currentQueueIndex++;
+                                const nextVideo = playlistQueue[currentQueueIndex];
+                                playerFrame.innerHTML = nextVideo.iframe;
+                                videoTitle.textContent = nextVideo.title;
+                                setTimeout(() => setupVideoPlayer(nextVideo, true), 1000);
+                            } else {
+                                currentPlayer.unload();
+                            }
                         }
                     });
                 }
@@ -306,19 +337,53 @@
 
         // Funktion zur Berechnung der freigeschalteten Videos basierend auf dem Datum
         function calculateUnlockedVideos() {
-            // Wenn Passwort eingegeben wurde, alle Videos freischalten
+            // Wenn Passwort eingegeben wurde, alle freigeben
             if (sessionStorage.getItem('videoAccess') === 'granted') {
-                return videos.length;
+                return { indices: videos.map((_, i) => i) };
             }
 
-            // Ohne Passwort: nur das erste Video (Begrüßung) freischalten
-            return 1;
+            // Startdatum: 1. Dezember 2025
+            const base = new Date('2025-12-01');
+            const now = new Date();
+
+            // Berechne wie viele Wochen seit dem Startdatum vergangen sind
+            const diffWeeks = Math.floor((now - base) / (7 * 24 * 60 * 60 * 1000));
+
+            // Woche 0: Video 1 & 2 zusammen (Index 0 und 1)
+            // Woche 1: Video 3 (Index 2)
+            // Woche 2: Video 4 (Index 3)
+            // ... und so weiter
+
+            if (diffWeeks === 0) {
+                // Erste Woche: Video 1 und 2 zusammen
+                return { indices: [0, 1] };
+            } else {
+                // Ab Woche 1: Einzelne Videos (Video 3 = Index 2, Video 4 = Index 3, ...)
+                // Nach Video 12 wieder von vorne mit Video 1+2
+                const videoIndex = ((diffWeeks - 1) % (videos.length - 1)) + 2;
+                const adjustedIndex = videoIndex >= videos.length ? 0 : videoIndex;
+
+                if (adjustedIndex === 0) {
+                    // Zurück zu Video 1+2
+                    return { indices: [0, 1] };
+                } else {
+                    return { indices: [adjustedIndex] };
+                }
+            }
         }
 
         // Zeige die freigeschalteten Videos
         function showUnlockedVideos() {
-            const unlockedCount = calculateUnlockedVideos();
-            const unlockedVideos = videos.slice(0, unlockedCount); // Nur freigeschaltete Videos anzeigen
+            const unlocked = calculateUnlockedVideos();
+            let unlockedVideos;
+
+            if (sessionStorage.getItem('videoAccess') === 'granted') {
+                // Alle Videos anzeigen
+                unlockedVideos = videos;
+            } else {
+                // Zeige die Videos basierend auf den berechneten Indizes
+                unlockedVideos = unlocked.indices.map(i => videos[i]);
+            }
 
             // Playlist aktualisieren
             const playlistItems = document.getElementById('playlistItems');
@@ -346,12 +411,17 @@
 
             // Zeige das erste freigeschaltete Video
             if (unlockedVideos.length > 0) {
+                // Setze die Playlist-Queue für automatisches Abspielen
+                playlistQueue = unlockedVideos;
+                currentQueueIndex = 0;
+
                 const firstVideo = unlockedVideos[0];
                 playerFrame.innerHTML = firstVideo.iframe;
                 videoTitle.textContent = firstVideo.title;
 
                 // Warte bis iframe geladen ist, dann richte Player ein
-                setTimeout(() => setupVideoPlayer(firstVideo), 1000);
+                // Aktiviere autoplayNext wenn mehr als 1 Video in der Queue ist
+                setTimeout(() => setupVideoPlayer(firstVideo, unlockedVideos.length > 1), 1000);
             }
 
             // Zeige die Playlist nur wenn Passwort eingegeben wurde
